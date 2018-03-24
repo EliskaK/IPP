@@ -3,7 +3,7 @@ IPP
 parse.php + STATP (rozšíření o statistiky) OK
 Body: -/6
 
-2.úloha:
+2. úloha:
 interpret.py
 test.php
 dokumentace
