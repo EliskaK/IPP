@@ -2,7 +2,7 @@
 
 import xml.etree.ElementTree as ET
 import sys, getopt, re
-
+DEBUG = 0
 def load_data(arg):
 	try:
 		tree = ET.parse(arg)
@@ -81,9 +81,9 @@ def var_type_control(var):
 	if type(var) is int:
 		return "int";
 	else:
-		if isinstance(var, str) and var not in ['true', 'false'] or var == None:
+		if isinstance(var, str) and var not in ['true', 'false', 'True', 'False'] or var == None:
 			return "string";
-		elif (isinstance(var, bool)) or (isinstance(var, str) and var in ['true', 'false']):
+		elif (isinstance(var, bool)) or (isinstance(var, str) and var in ['true', 'false', 'True', 'False']):
 			return "bool";
 		elif var.isdigit():
 			return "int";
@@ -99,9 +99,9 @@ def is_int(num):
 			sys.exit(53)
 
 def is_bool(val):
-	if val == "true":
+	if val == "true" or val == "True":
 		return True;
-	elif val == "false":
+	elif val == "false" or val == "False":
 		return False;
 	else:
 		print("53: Argument není typu bool.")
@@ -137,6 +137,7 @@ def control_get_value(value, type, lab):
 		return int(value.text);
 	elif type == "bool":
 		is_bool(value.text)
+		value.text = value.text.lower()
 		check_atrib_type("bool", value.attrib["type"])
 		return value.text;
 	elif type == "string":
@@ -238,6 +239,7 @@ def relational_op(val, values, global_frame, local_frame, temp_frame, labels):
 			is_string(values[1])
 		elif typ1 == 'bool':
 			is_bool(values[1])
+			values[1] = values[1].lower()
 	else:
 		print("53: Nesprávný typ operandu.")
 		sys.exit(53)
@@ -253,6 +255,7 @@ def relational_op(val, values, global_frame, local_frame, temp_frame, labels):
 			is_string(values[2])
 		elif typ2 == 'bool':
 			is_bool(values[2])
+			values[2] = values[2].lower()
 	else:
 		print("53: Nesprávný typ instrukce.")
 		sys.exit(53)
@@ -272,6 +275,7 @@ def bool_op(val, values, global_frame, local_frame, temp_frame, labels):
 			var_control(values[1][:2], values[1][3:], global_frame, local_frame, temp_frame)
 			values[1] = get_var(values[1][3:], global_frame, local_frame, temp_frame)
 			is_bool(values[1])
+			values[1] = values[1].lower()
 	else:
 		print("53: Nesprávný typ operandů.")
 		sys.exit(53)
@@ -281,6 +285,7 @@ def bool_op(val, values, global_frame, local_frame, temp_frame, labels):
 			var_control(values[2][:2], values[2][3:], global_frame, local_frame, temp_frame)
 			values[2] = get_var(values[2][3:], global_frame, local_frame, temp_frame)
 			is_bool(values[2])
+			values[2] = values[2].lower()
 	else:
 		print("53: Nesprávný typ operandů.")
 		sys.exit(53)
@@ -322,7 +327,8 @@ def interpret(root):
 		global instr_total
 		instr_total += 1
 		check_instr_arg(child)
-		print (child.attrib["opcode"])
+		if DEBUG:
+			print (child.attrib["opcode"])
 		if(child.attrib["opcode"] in ['MOVE']):
 			count_args(child, 2)
 			values.append(control_get_value(child[0], "var", labels))
@@ -332,11 +338,11 @@ def interpret(root):
 			if typ == "var":
 				var_control(values[1][:2], values[1][3:], global_frame, local_frame, temp_frame)
 				values[1] = get_var(values[1][3:], global_frame, local_frame, temp_frame)
-			typ = get_type(values[1])
+				typ = var_type_control(values[1]);
 			if values[1] == None:
 				print("56: Chybějící hodnota v proměnné.")
 				sys.exit(56)
-			if '\\' in values[1]:
+			if typ == "string" and '\\' in values[1]:
 				esc = re.findall("\\\\\d\d\d", values[1])
 				for escape_seq in esc:
 					values[1] = values[1].replace(escape_seq, chr(int(escape_seq.lstrip('\\'))))
@@ -565,6 +571,7 @@ def interpret(root):
 						result = inpt
 					elif (child[1].text == 'bool'):
 						result = is_bool(inpt)
+						result = result.lower()
 			set_val_to_var(values[0][:2], values[0][3:], result, global_frame, local_frame, temp_frame)
 
 		elif(child.attrib["opcode"] in ['WRITE']):
@@ -629,6 +636,9 @@ def interpret(root):
 			elif typ == "var":
 				values.append(control_get_value(child[1], "var", labels))
 				var_control(values[1][:2], values[1][3:], global_frame, local_frame, temp_frame)
+				values[1] = get_var(values[1][3:], global_frame, local_frame, temp_frame)
+				typ = var_type_control(values[1]);
+			if typ == 'string':
 				is_string(values[1])
 			else:
 				print("53: Nesprávný typ operandu.")
@@ -770,6 +780,7 @@ def interpret(root):
 				elif typ1 == 'string':
 					is_string(values[1])
 				elif typ1 == 'bool':
+					values[1] = str(values[1]).lower()
 					is_bool(values[1])
 			else:
 				print("53: Nesprávný typ operandu.")
@@ -785,20 +796,20 @@ def interpret(root):
 				elif typ2 == 'string':
 					is_string(values[2])
 				elif typ2 == 'bool':
+					values[2] = str(values[2]).lower()
 					is_bool(values[2])
 			else:
 				print("53: Nesprávný typ operandu.")
 				sys.exit(53)
-			if '\\' in values[1]:
+			if typ1 == "string" and '\\' in values[1]:
 				esc = re.findall("\\\\\d\d\d", values[1])
 				for escape_seq in esc:
 					values[1] = values[1].replace(escape_seq, chr(int(escape_seq.lstrip('\\'))))
 
-			if '\\' in values[2]:
+			if typ2 == "string" and '\\' in values[2]:
 				esc = re.findall("\\\\\d\d\d", values[2])
 				for escape_seq in esc:
 					values[2] = values[2].replace(escape_seq, chr(int(escape_seq.lstrip('\\'))))
-
 			if(typ1 != typ2):
 				print("53: Typy operandů nejsou stejné.")
 				sys.exit(53)
@@ -807,7 +818,6 @@ def interpret(root):
 				break
 
 		elif(child.attrib["opcode"] in ['JUMPIFNEQ']):
-			count_args(child, 3)
 			count_args(child, 3)
 			values.append(control_get_value(child[0], "label", labels))
 			if values[0] not in labels:
@@ -827,6 +837,7 @@ def interpret(root):
 				elif typ1 == 'string':
 					is_string(values[1])
 				elif typ1 == 'bool':
+					values[1] = str(values[1]).lower()
 					is_bool(values[1])
 			else:
 				print("53: Nesprávný typ operandu.")
@@ -842,16 +853,17 @@ def interpret(root):
 				elif typ2 == 'string':
 					is_string(values[2])
 				elif typ2 == 'bool':
+					values[2] = str(values[2]).lower()
 					is_bool(values[2])
 			else:
 				print("53: Nesprávný typ operandu.")
 				sys.exit(53)
-			if '\\' in values[1]:
+			if typ1 == "string" and '\\' in values[1]:
 				esc = re.findall("\\\\\d\d\d", values[1])
 				for escape_seq in esc:
 					values[1] = values[1].replace(escape_seq, chr(int(escape_seq.lstrip('\\'))))
 
-			if '\\' in values[2]:
+			if typ2 == "string" and '\\' in values[2]:
 				esc = re.findall("\\\\\d\d\d", values[2])
 				for escape_seq in esc:
 					values[2] = values[2].replace(escape_seq, chr(int(escape_seq.lstrip('\\'))))
@@ -891,7 +903,7 @@ def interpret(root):
 		else:
 			print("32: Neznámá instrukce.")
 			sys.exit(32)
-		if 1:
+		if DEBUG:
 			print("#-#-#-#-#-#-#-#-#-#-#")
 			print("#-# DEBUG OUTPUT #-#")
 			print("GF:", global_frame)
