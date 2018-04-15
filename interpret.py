@@ -42,6 +42,9 @@ def check_instr_arg(child):
 		if subchild.attrib["type"] != "string" and subchild.text is None:
 			print("32: Chybí hodnota.")
 			sys.exit(32)
+		if subchild.attrib["type"] == "string" and ' ' in subchild.text:
+			print("31: Špatně zadaný string v XML.")
+			sys.exit(31)
 		argplus+=1
 
 def check_atrib_type(type, atrib_type):
