@@ -480,6 +480,11 @@ def interpret(root):
 					var_control(values[1][:2], values[1][3:], global_frame, local_frame, temp_frame)
 					values[1] = get_var(values[1][3:], global_frame, local_frame, temp_frame)
 					is_string(values[1])
+
+				if '\\' in values[1]:
+					esc = re.findall("\\\\\d\d\d", values[1])
+					for escape_seq in esc:
+						values[1] = values[1].replace(escape_seq, chr(int(escape_seq.lstrip('\\'))))
 			else:
 				print("53: Nesprávný typ operandu.")
 				sys.exit(53)
@@ -576,6 +581,10 @@ def interpret(root):
 				print("53: Nesprávný typ operandu.")
 				sys.exit(53)
 			result = values[1] + values[2]
+			if '\\' in result:
+				esc = re.findall("\\\\\d\d\d", result)
+				for escape_seq in esc:
+					result = result.replace(escape_seq, chr(int(escape_seq.lstrip('\\'))))
 			set_val_to_var(values[0][:2], values[0][3:], result, global_frame, local_frame, temp_frame)
 
 		elif(child.attrib["opcode"] in ['STRLEN']):
@@ -588,10 +597,17 @@ def interpret(root):
 			elif typ == "var":
 				values.append(control_get_value(child[1], "var", labels))
 				var_control(values[1][:2], values[1][3:], global_frame, local_frame, temp_frame)
+				is_string(values[1])
 			else:
 				print("53: Nesprávný typ operandu.")
 				sys.exit(53)
-			result = int(len(values[1]))
+			if '\\' in values[1]:
+				esc = re.findall("\\\\\d\d\d", values[1])
+				for escape_seq in esc:
+					values[1] = values[1].replace(escape_seq, chr(int(escape_seq.lstrip('\\'))))
+				result = int(len(values[1]))
+			else:
+				result = int(len(values[1]))
 			set_val_to_var(values[0][:2], values[0][3:], result, global_frame, local_frame, temp_frame)
 
 		elif(child.attrib["opcode"] in ['GETCHAR']):
@@ -605,6 +621,11 @@ def interpret(root):
 					var_control(values[1][:2], values[1][3:], global_frame, local_frame, temp_frame)
 					values[1] = get_var(values[1][3:], global_frame, local_frame, temp_frame)
 					is_string(values[1])
+
+				if '\\' in values[1]:
+					esc = re.findall("\\\\\d\d\d", values[1])
+					for escape_seq in esc:
+						values[1] = values[1].replace(escape_seq, chr(int(escape_seq.lstrip('\\'))))
 			else:
 				print("53: Nesprávný typ operandu.")
 				sys.exit(53)
@@ -647,6 +668,10 @@ def interpret(root):
 					var_control(values[2][:2], values[2][3:], global_frame, local_frame, temp_frame)
 					values[2] = get_var(values[2][3:], global_frame, local_frame, temp_frame)
 					is_string(values[2])
+				if '\\' in values[2]:
+					esc = re.findall("\\\\\d\d\d", values[2])
+					for escape_seq in esc:
+						values[2] = values[2].replace(escape_seq, chr(int(escape_seq.lstrip('\\'))))
 			else:
 				print("53: Nesprávný typ operandu.")
 				sys.exit(53)
@@ -720,6 +745,16 @@ def interpret(root):
 			else:
 				print("53: Nesprávný typ operandu.")
 				sys.exit(53)
+			if '\\' in values[1]:
+				esc = re.findall("\\\\\d\d\d", values[1])
+				for escape_seq in esc:
+					values[1] = values[1].replace(escape_seq, chr(int(escape_seq.lstrip('\\'))))
+
+			if '\\' in values[2]:
+				esc = re.findall("\\\\\d\d\d", values[2])
+				for escape_seq in esc:
+					values[2] = values[2].replace(escape_seq, chr(int(escape_seq.lstrip('\\'))))
+
 			if(typ1 != typ2):
 				print("53: Typy operandů nejsou stejné.")
 				sys.exit(53)
@@ -755,6 +790,16 @@ def interpret(root):
 			else:
 				print("53: Nesprávný typ operandu.")
 				sys.exit(53)
+			if '\\' in values[1]:
+				esc = re.findall("\\\\\d\d\d", values[1])
+				for escape_seq in esc:
+					values[1] = values[1].replace(escape_seq, chr(int(escape_seq.lstrip('\\'))))
+
+			if '\\' in values[2]:
+				esc = re.findall("\\\\\d\d\d", values[2])
+				for escape_seq in esc:
+					values[2] = values[2].replace(escape_seq, chr(int(escape_seq.lstrip('\\'))))
+
 			if(typ1 != typ2):
 				print("53: Typy operandů nejsou stejné.")
 				sys.exit(53)
@@ -790,7 +835,7 @@ def interpret(root):
 		else:
 			print("32: Neznámá instrukce.")
 			sys.exit(32)
-		if 0:
+		if 1:
 			print("#-#-#-#-#-#-#-#-#-#-#")
 			print("#-# DEBUG OUTPUT #-#")
 			print("GF:", global_frame)
