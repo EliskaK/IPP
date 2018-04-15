@@ -42,8 +42,8 @@ def check_instr_arg(child):
 		if subchild.attrib["type"] != "string" and subchild.text is None:
 			print("32: Chybí hodnota.")
 			sys.exit(32)
-		if subchild.attrib["type"] == "string" and ' ' in subchild.text:
-			print("31: Špatně zadaný string v XML.")
+		elif subchild.text is not None and " " in subchild.text and (subchild.attrib["type"] == "string" or subchild.attrib["type"] == "int"):
+			print("31: Mezera v hodnotě.")
 			sys.exit(31)
 		argplus+=1
 
@@ -76,6 +76,17 @@ def get_type(value):
 		return "int"
 	elif isinstance(value, str):
 		return "bool"
+
+def var_type_control(var):
+	if type(var) is int:
+		return "int";
+	else:
+		if isinstance(var, str) and var not in ['true', 'false'] or var == None:
+			return "string";
+		elif (isinstance(var, bool)) or (isinstance(var, str) and var in ['true', 'false']):
+			return "bool";
+		elif var.isdigit():
+			return "int";
 
 def is_int(num):
 	if type(num) is int:
@@ -220,6 +231,13 @@ def relational_op(val, values, global_frame, local_frame, temp_frame, labels):
 		if typ1 == 'var':
 			var_control(values[1][:2], values[1][3:], global_frame, local_frame, temp_frame)
 			values[1] = get_var(values[1][3:], global_frame, local_frame, temp_frame)
+			typ1 = var_type_control(values[1]);
+		if typ1 == 'int':
+			is_int(values[1])
+		elif typ1 == 'string':
+			is_string(values[1])
+		elif typ1 == 'bool':
+			is_bool(values[1])
 	else:
 		print("53: Nesprávný typ operandu.")
 		sys.exit(53)
@@ -228,6 +246,13 @@ def relational_op(val, values, global_frame, local_frame, temp_frame, labels):
 		if typ2 == 'var':
 			var_control(values[2][:2], values[2][3:], global_frame, local_frame, temp_frame)
 			values[2] = get_var(values[2][3:], global_frame, local_frame, temp_frame)
+			typ2 = var_type_control(values[2]);
+		if typ2 == 'int':
+			is_int(values[2])
+		elif typ2 == 'string':
+			is_string(values[2])
+		elif typ2 == 'bool':
+			is_bool(values[2])
 	else:
 		print("53: Nesprávný typ instrukce.")
 		sys.exit(53)
@@ -311,6 +336,10 @@ def interpret(root):
 			if values[1] == None:
 				print("56: Chybějící hodnota v proměnné.")
 				sys.exit(56)
+			if '\\' in values[1]:
+				esc = re.findall("\\\\\d\d\d", values[1])
+				for escape_seq in esc:
+					values[1] = values[1].replace(escape_seq, chr(int(escape_seq.lstrip('\\'))))
 			set_val_to_var(values[0][:2], values[0][3:], values[1], global_frame, local_frame, temp_frame)
 
 		elif(child.attrib["opcode"] in ['CREATEFRAME']):
@@ -735,7 +764,13 @@ def interpret(root):
 				if typ1 == 'var':
 					var_control(values[1][:2], values[1][3:], global_frame, local_frame, temp_frame)
 					values[1] = get_var(values[1][3:], global_frame, local_frame, temp_frame)
-					typ1 = get_type(values[1])
+					typ1 = var_type_control(values[1]);
+				if typ1 == 'int':
+					is_int(values[1])
+				elif typ1 == 'string':
+					is_string(values[1])
+				elif typ1 == 'bool':
+					is_bool(values[1])
 			else:
 				print("53: Nesprávný typ operandu.")
 				sys.exit(53)
@@ -744,7 +779,13 @@ def interpret(root):
 				if typ2 == 'var':
 					var_control(values[2][:2], values[2][3:], global_frame, local_frame, temp_frame)
 					values[2] = get_var(values[2][3:], global_frame, local_frame, temp_frame)
-					typ2 = get_type(values[2])
+					typ2 = var_type_control(values[2]);
+				if typ2 == 'int':
+					is_int(values[2])
+				elif typ2 == 'string':
+					is_string(values[2])
+				elif typ2 == 'bool':
+					is_bool(values[2])
 			else:
 				print("53: Nesprávný typ operandu.")
 				sys.exit(53)
@@ -780,7 +821,13 @@ def interpret(root):
 				if typ1 == 'var':
 					var_control(values[1][:2], values[1][3:], global_frame, local_frame, temp_frame)
 					values[1] = get_var(values[1][3:], global_frame, local_frame, temp_frame)
-					typ1 = get_type(values[1])
+					typ1 = var_type_control(values[1]);
+				if typ1 == 'int':
+					is_int(values[1])
+				elif typ1 == 'string':
+					is_string(values[1])
+				elif typ1 == 'bool':
+					is_bool(values[1])
 			else:
 				print("53: Nesprávný typ operandu.")
 				sys.exit(53)
@@ -789,7 +836,13 @@ def interpret(root):
 				if typ2 == 'var':
 					var_control(values[2][:2], values[2][3:], global_frame, local_frame, temp_frame)
 					values[2] = get_var(values[2][3:], global_frame, local_frame, temp_frame)
-					typ2 = get_type(values[2])
+					typ2 = var_type_control(values[2]);
+				if typ2 == 'int':
+					is_int(values[2])
+				elif typ2 == 'string':
+					is_string(values[2])
+				elif typ2 == 'bool':
+					is_bool(values[2])
 			else:
 				print("53: Nesprávný typ operandu.")
 				sys.exit(53)
@@ -824,16 +877,16 @@ def interpret(root):
 
 		elif(child.attrib["opcode"] in ['BREAK']):
 			count_args(child, 0)
-			print("* * * STATE of INTERPRET: * * *")
-			print("Pozice:", instr_total)
-			print("Instrukce (vykonáno):", instr_total-1)
-			print("Instrukce (celkem):", len(root))
-			print("*Obsah rámců:*")
-			print("GF [jméno: hodnota]:", global_frame)
-			print("LF:", local_frame)
-			print("TF:", temp_frame)
-			print("Zásobník:", stack)
-			print("Návěští [jméno: pozice]:", labels)
+			print("* * * STATE of INTERPRET: * * *",file=sys.stderr)
+			print("Pozice:"+instr_total,file=sys.stderr)
+			print("Instrukce (vykonáno):"+instr_total-1,file=sys.stderr)
+			print("Instrukce (celkem):"+len(root),file=sys.stderr)
+			print("*Obsah rámců:*",file=sys.stderr)
+			print("GF [jméno: hodnota]: "+global_frame,file=sys.stderr)
+			print("LF: "+local_frame,file=sys.stderr)
+			print("TF: "+temp_frame,file=sys.stderr)
+			print("Zásobník: "+stack,file=sys.stderr)
+			print("Návěští [jméno: pozice]: "+labels,file=sys.stderr)
 
 		else:
 			print("32: Neznámá instrukce.")
