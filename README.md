@@ -12,7 +12,7 @@ Celkem bez rozšíření: 83%<br>
 
 <b>2. úloha:</b><br>
 interpret.py OK <br>
-test.php NE <br>
+test.php OK <br>
 dokumentace OK <br><br>
 Procentuální hodnocení jednotlivých kategorií skriptu interpret.py: <br>
 Lexikální analýza: 30%<br>
@@ -25,4 +25,11 @@ Rozšíření FLOAT 0%<br>
 Rozšíření STACK 0%<br>
 Rozšíření STATI 0%<br>
 Celkem bez rozšíření: 64%<br>
-<b>Body: 5,18/8 (interpret) + 2,40/3 (dokumentace)</b>
+Procentuální hodnocení jednotlivých kategorií skriptu test.php: <br>
+Lexikální analýza: 100%<br>
+Syntaktická analýza: 100%<br>
+Zpracování instrukcí: 100%<br>
+Zpracování programů: 0%<br>
+Rozšíření STATP 0%<br>
+Celkem bez rozšíření: 100%<br>
+<b>Body: 5,18/8 (interpret.py) + 2,40/3 (dokumentace) + 3/3 (test.php)</b>
