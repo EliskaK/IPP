@@ -10,7 +10,7 @@ Rozšíření STATP 65%<br>
 Celkem bez rozšíření: 83%<br>
 <b>Body: 5,04/6 + rozšíření 0,65/1</b>
 
-<b>2. úloha:</b>
+<b>2. úloha:</b><br>
 interpret.py OK <br>
 test.php NE <br>
 dokumentace OK <br><br>
