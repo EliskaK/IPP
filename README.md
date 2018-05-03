@@ -24,7 +24,7 @@ Interpretace programů: 0%<br>
 Rozšíření FLOAT 0%<br>
 Rozšíření STACK 0%<br>
 Rozšíření STATI 0%<br>
-Celkem bez rozšíření: 64%<br>
+Celkem bez rozšíření: 64%<br><br>
 Procentuální hodnocení jednotlivých kategorií skriptu test.php: <br>
 Lexikální analýza: 100%<br>
 Syntaktická analýza: 100%<br>
